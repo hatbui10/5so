@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>5 số</title>
+    <title>Dark Mode Grid - Continuous Shift</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #121212;
             color: #e0e0e0;
             margin: 0;
-            padding: 15px;
+            padding: 0; /* Xóa padding để sát khít viền trái/phải màn hình */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 90vh;
+            justify-content: flex-start; /* Đẩy sát lên mép trên cùng */
+            min-height: 100vh;
         }
 
         .container {
             background: #1e1e1e;
-            padding: 10px;
-            border-radius: 12px;
+            padding: 10px 5px; /* Giảm padding tối đa */
+            border-radius: 0 0 12px 12px; /* Phẳng ở trên, bo tròn góc ở dưới */
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
@@ -35,8 +35,8 @@
             width: 100%;
             overflow-x: auto;
             overflow-y: hidden;
-            padding: 10px 5px;
-            margin: 2px;
+            padding: 0; /* Đưa bảng sát viền dọc */
+            margin: 0;
             box-sizing: border-box;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
@@ -47,6 +47,7 @@
             grid-template-columns: repeat(10, 28px);
             gap: 4px;
             width: max-content;
+            margin: 0 auto; /* Căn giữa nội dung bảng nếu màn hình rộng */
         }
 
         .cell {
@@ -85,7 +86,7 @@
         }
 
         .input-area {
-            margin-top: 25px;
+            margin-top: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -196,20 +197,16 @@
     const cells = document.querySelectorAll('.cell');
     const btnReset = document.getElementById('btnReset');
     
-    // Tạo một mảng lưu trữ dữ liệu của 10 ô (đại diện từ ô 0 đến ô 9)
-    // Ban đầu mảng trống hoàn toàn
     let dataGrid = ["", "", "", "", "", "", "", "", "", ""];
-    let autoColumn = 9;        // Con trỏ điền lùi ban đầu từ ô 9 về 0
-    let selectedColumn = null;  // Cột phát sáng đứng im khi click tay
+    let autoColumn = 9;        
+    let selectedColumn = null;  
 
-    // Hàm cập nhật hiển thị từ mảng dataGrid lên giao diện HTML
     function renderGrid() {
         for (let i = 0; i <= 9; i++) {
             document.getElementById(`c-${i}`).textContent = dataGrid[i];
         }
     }
 
-    // Hàm cập nhật hiệu ứng phát sáng cho cột được click tay
     function updateSelectionStyle() {
         cells.forEach(cell => {
             const colIndex = parseInt(cell.getAttribute('data-column'));
@@ -222,32 +219,24 @@
         inputA.focus();
     }
 
-    // Logic xử lý nhập liệu dịch chuyển liên tục
     inputA.addEventListener('input', (e) => {
         let value = e.target.value;
-        value = value.replace(/[^0-9]/g, ''); // Chỉ lấy số 0-9
+        value = value.replace(/[^0-9]/g, ''); 
         
         if (value !== '') {
             if (autoColumn >= 0) {
-                // Giai đoạn 1: Chưa điền hết 10 ô, điền lùi từ ô 9 về ô 0
                 dataGrid[autoColumn] = value;
                 autoColumn--;
             } else {
-                // Giai đoạn 2: Đã đầy cả 10 ô (autoColumn lúc này < 0)
-                // Theo logic dịch chuyển: Xóa ô số 0 cũ -> Đẩy mọi phần tử sang trái -> Chèn số mới vào ô 9
-                dataGrid.shift();       // Xóa phần tử đầu tiên (ô 0) và đẩy các ô khác dịch sang trái
-                dataGrid.push(value);   // Chèn số vừa gõ vào vị trí cuối cùng (ô 9)
+                dataGrid.shift();       
+                dataGrid.push(value);   
             }
 
-            // Cập nhật lại số lên giao diện sau khi tính toán
             renderGrid();
-            
-            // Xóa trống ô A ngay để gõ số kế tiếp không bị chặn
             e.target.value = '';
         }
     });
 
-    // Sự kiện click tay chọn mốc phát sáng cố định
     cells.forEach(cell => {
         cell.addEventListener('click', () => {
             selectedColumn = parseInt(cell.getAttribute('data-column'));
@@ -255,7 +244,6 @@
         });
     });
 
-    // Nút RESET đưa mọi thứ về mặc định sạch sẽ ban đầu
     btnReset.addEventListener('click', () => {
         dataGrid = ["", "", "", "", "", "", "", "", "", ""];
         renderGrid();
@@ -265,7 +253,6 @@
         updateSelectionStyle();
     });
 
-    // Luôn giữ bàn phím sẵn sàng ở ô A khi vừa mở trang
     window.addEventListener('DOMContentLoaded', () => {
         inputA.focus();
     });
