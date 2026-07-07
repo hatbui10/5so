@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dark Mode Grid - Continuous Shift</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+        }
+
+        .container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+        }
+
+        .table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 10px 5px;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .grid-table {
+            display: grid;
+            grid-template-columns: repeat(10, 28px);
+            gap: 6px;
+            width: max-content;
+        }
+
+        .cell {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #252525;
+            font-weight: bold;
+            font-size: 13px;
+            box-sizing: border-box;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+
+        .row-1 {
+            color: #888;
+            background-color: #2a2a2a;
+        }
+
+        .row-2 {
+            font-weight: normal;
+            color: #fff;
+        }
+
+        /* Phát sáng cố định tại chỗ khi được bấm tay chọn cột */
+        .cell.active {
+            border-color: #00e5ff;
+            background-color: rgba(0, 229, 255, 0.15);
+            color: #00e5ff;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
+        }
+
+        .input-area {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .input-area label {
+            font-size: 12px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #inputA {
+            width: 40px;
+            height: 40px;
+            background-color: #252525;
+            border: 2px solid #444;
+            border-radius: 6px;
+            color: #00e5ff;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #inputA:focus {
+            border-color: #00e5ff;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+        }
+
+        .btn-reset {
+            margin-top: 5px;
+            background-color: #cc241d;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-reset:active {
+            background-color: #9d1814;
+        }
+
+        .hint {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="table-scroll" id="scrollWrapper">
+        <div class="grid-table">
+            <!-- Hàng 1: STT từ 0 đến 9 -->
+            <div class="cell row-1" data-column="0">0</div>
+            <div class="cell row-1" data-column="1">1</div>
+            <div class="cell row-1" data-column="2">2</div>
+            <div class="cell row-1" data-column="3">3</div>
+            <div class="cell row-1" data-column="4">4</div>
+            <div class="cell row-1" data-column="5">5</div>
+            <div class="cell row-1" data-column="6">6</div>
+            <div class="cell row-1" data-column="7">7</div>
+            <div class="cell row-1" data-column="8">8</div>
+            <div class="cell row-1" data-column="9">9</div>
+
+            <!-- Hàng 2: Các ô số tương ứng -->
+            <div class="cell row-2" data-column="0" id="c-0"></div>
+            <div class="cell row-2" data-column="1" id="c-1"></div>
+            <div class="cell row-2" data-column="2" id="c-2"></div>
+            <div class="cell row-2" data-column="3" id="c-3"></div>
+            <div class="cell row-2" data-column="4" id="c-4"></div>
+            <div class="cell row-2" data-column="5" id="c-5"></div>
+            <div class="cell row-2" data-column="6" id="c-6"></div>
+            <div class="cell row-2" data-column="7" id="c-7"></div>
+            <div class="cell row-2" data-column="8" id="c-8"></div>
+            <div class="cell row-2" data-column="9" id="c-9"></div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <label for="inputA">Ô A</label>
+        <input type="text" id="inputA" inputmode="numeric" maxlength="1" autocomplete="off" autofocus>
+        <button class="btn-reset" id="btnReset">RESET</button>
+    </div>
+
+    <div class="hint">
+        - Nhập liên tục: Điền lùi từ 9 về 0. Khi đầy, ô 0 cũ tự xóa, toàn bộ số dịch trái để nhường chỗ gõ tiếp vào ô 9.<br>
+        - Bấm vào cột: Cột đó phát sáng tại chỗ làm mốc cố định.<br>
+        - Ô A không bao giờ bị khóa.
+    </div>
+</div>
+
+<script>
+    const inputA = document.getElementById('inputA');
+    const cells = document.querySelectorAll('.cell');
+    const btnReset = document.getElementById('btnReset');
+    
+    // Tạo một mảng lưu trữ dữ liệu của 10 ô (đại diện từ ô 0 đến ô 9)
+    // Ban đầu mảng trống hoàn toàn
+    let dataGrid = ["", "", "", "", "", "", "", "", "", ""];
+    let autoColumn = 9;        // Con trỏ điền lùi ban đầu từ ô 9 về 0
+    let selectedColumn = null;  // Cột phát sáng đứng im khi click tay
+
+    // Hàm cập nhật hiển thị từ mảng dataGrid lên giao diện HTML
+    function renderGrid() {
+        for (let i = 0; i <= 9; i++) {
+            document.getElementById(`c-${i}`).textContent = dataGrid[i];
+        }
+    }
+
+    // Hàm cập nhật hiệu ứng phát sáng cho cột được click tay
+    function updateSelectionStyle() {
+        cells.forEach(cell => {
+            const colIndex = parseInt(cell.getAttribute('data-column'));
+            if (selectedColumn !== null && colIndex === selectedColumn) {
+                cell.classList.add('active'); 
+            } else {
+                cell.classList.remove('active');
+            }
+        });
+        inputA.focus();
+    }
+
+    // Logic xử lý nhập liệu dịch chuyển liên tục
+    inputA.addEventListener('input', (e) => {
+        let value = e.target.value;
+        value = value.replace(/[^0-9]/g, ''); // Chỉ lấy số 0-9
+        
+        if (value !== '') {
+            if (autoColumn >= 0) {
+                // Giai đoạn 1: Chưa điền hết 10 ô, điền lùi từ ô 9 về ô 0
+                dataGrid[autoColumn] = value;
+                autoColumn--;
+            } else {
+                // Giai đoạn 2: Đã đầy cả 10 ô (autoColumn lúc này < 0)
+                // Theo logic dịch chuyển: Xóa ô số 0 cũ -> Đẩy mọi phần tử sang trái -> Chèn số mới vào ô 9
+                dataGrid.shift();       // Xóa phần tử đầu tiên (ô 0) và đẩy các ô khác dịch sang trái
+                dataGrid.push(value);   // Chèn số vừa gõ vào vị trí cuối cùng (ô 9)
+            }
+
+            // Cập nhật lại số lên giao diện sau khi tính toán
+            renderGrid();
+            
+            // Xóa trống ô A ngay để gõ số kế tiếp không bị chặn
+            e.target.value = '';
+        }
+    });
+
+    // Sự kiện click tay chọn mốc phát sáng cố định
+    cells.forEach(cell => {
+        cell.addEventListener('click', () => {
+            selectedColumn = parseInt(cell.getAttribute('data-column'));
+            updateSelectionStyle();
+        });
+    });
+
+    // Nút RESET đưa mọi thứ về mặc định sạch sẽ ban đầu
+    btnReset.addEventListener('click', () => {
+        dataGrid = ["", "", "", "", "", "", "", "", "", ""];
+        renderGrid();
+        autoColumn = 9;
+        selectedColumn = null;
+        inputA.value = '';
+        updateSelectionStyle();
+    });
+
+    // Luôn giữ bàn phím sẵn sàng ở ô A khi vừa mở trang
+    window.addEventListener('DOMContentLoaded', () => {
+        inputA.focus();
+    });
+</script>
+
+</body>
+</html>
